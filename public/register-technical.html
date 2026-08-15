@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Technical Event Registration | PKIET CSE Tech Fest 2K25</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="/index.html" class="brand">
+      <img src="/images/logo.jpg" alt="PKIET Logo" />
+      <div class="brand-text">
+        <div class="college">PKIET</div>
+        <div class="dept">Department of Computer Science &amp; Engineering</div>
+      </div>
+    </a>
+    <button class="nav-toggle" aria-label="Menu">&#9776;</button>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/technical-events.html" class="active">Technical Events</a>
+      <a href="/cultural-events.html">Cultural Events</a>
+      <a href="/register-workshop.html">Workshop</a>
+      <a href="/admin-login.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-banner">
+  <h1 id="pageTitle">Technical Event Registration</h1>
+  <p id="pageSub"></p>
+</div>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="form-shell fade-in">
+      <div class="info-pane">
+        <h2 id="infoEventName">Event</h2>
+        <div class="meta-row">&#128197; 21st Aug 2025</div>
+        <div class="meta-row">&#128337; 10:00 AM &ndash; 04:00 PM</div>
+        <div class="meta-row">&#128205; Digital Lab</div>
+        <div class="meta-row">&#128176; &#8377;150 / Participant</div>
+        <div class="qr-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=pkiet@upi" alt="Payment QR Code" />
+          <div style="font-size:.82rem;color:#DCE3F7">UPI ID: pkiet@upi</div>
+        </div>
+      </div>
+
+      <div class="form-pane">
+        <form id="techForm">
+          <input type="hidden" name="eventCategory" value="Technical" />
+          <input type="hidden" id="eventNameInput" name="eventName" />
+          <input type="hidden" id="subTypeInput" name="subType" />
+
+          <div class="field">
+            <label>College Name</label>
+            <input type="text" name="collegeName" placeholder="Enter your college name" required />
+          </div>
+
+          <div class="field" id="teamNameField" style="display:none">
+            <label>Team Name</label>
+            <input type="text" name="teamName" placeholder="Enter team name" />
+          </div>
+
+          <div class="field" id="countField">
+            <label id="countLabel">Number of Participants</label>
+            <select id="participantCount" name="numParticipants" required></select>
+          </div>
+
+          <div id="participantFields" class="participant-list"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Contact Number</label>
+              <input type="tel" name="mobileNumber" placeholder="Enter mobile number" pattern="[0-9]{10}" required />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="Enter email address" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Upload Payment Screenshot</label>
+            <label class="file-drop" id="fileLabel" for="paymentScreenshot">Choose File &mdash; No file chosen</label>
+            <input type="file" id="paymentScreenshot" name="paymentScreenshot" accept="image/*" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Submit Registration</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">&#10003;</div>
+    <h2>Registration Successful!</h2>
+    <p>Your registration has been submitted successfully. We will send a confirmation email once your details have been reviewed.</p>
+    <p style="font-size:.8rem">Your Registration ID</p>
+    <div class="reg-id-badge" id="regIdText"></div>
+    <br />
+    <a href="/index.html" class="btn btn-primary">Go to Home</a>
+  </div>
+</div>
+
+<footer class="site-footer" id="footer"></footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/footer.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const eventName = params.get('event') || 'Technical Event';
+  const sub = params.get('sub') || 'Solo';
+  const max = parseInt(params.get('max'), 10) || 1;
+
+  document.getElementById('pageTitle').textContent = eventName;
+  document.getElementById('pageSub').textContent = sub + ' Category';
+  document.getElementById('infoEventName').textContent = eventName;
+  document.getElementById('eventNameInput').value = eventName;
+  document.getElementById('subTypeInput').value = sub;
+  document.getElementById('countLabel').textContent = `Number of Participants (Max ${max})`;
+
+  const countSelect = document.getElementById('participantCount');
+  if (sub === 'Solo') {
+    countSelect.innerHTML = '<option value="1" selected>1</option>';
+    document.getElementById('countField').style.display = 'none';
+  } else {
+    document.getElementById('teamNameField').style.display = 'block';
+    for (let i = sub === 'Duo' ? 2 : 2; i <= max; i++) {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = i;
+      if (i === (sub === 'Duo' ? 2 : Math.min(3, max))) opt.selected = true;
+      countSelect.appendChild(opt);
+    }
+    // Note: intentionally not disabling the select — disabled fields are
+    // excluded from form submission entirely. Duo only ever has one
+    // option (2) populated below, so it's effectively locked already.
+  }
+  renderParticipantFields('participantFields', parseInt(countSelect.value, 10) || 1);
+  countSelect.addEventListener('change', () => renderParticipantFields('participantFields', parseInt(countSelect.value, 10) || 1));
+
+  bindFileDrop('paymentScreenshot', 'fileLabel');
+
+  document.getElementById('techForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitRegistrationForm(e.target, document.getElementById('submitBtn'));
+  });
+</script>
+</body>
+</html>

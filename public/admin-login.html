@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Login | PKIET CSE Tech Fest 2K25</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .login-wrap { min-height: 90vh; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, var(--navy), var(--royal-blue)); padding: 24px; }
+  .login-card { background:#fff; border-radius: 22px; box-shadow: var(--shadow-lift); max-width: 380px; width:100%; padding: 44px 36px; text-align:center; }
+  .login-card img { width: 64px; height:64px; border-radius:50%; margin: 0 auto 16px; }
+  .login-card h2 { color: var(--navy); margin-bottom: 4px; }
+  .login-card p.sub { color: var(--text-muted); font-size:.86rem; margin-bottom: 26px; }
+  .login-card form { text-align:left; }
+  .remember-row { display:flex; justify-content:space-between; align-items:center; font-size:.82rem; margin-bottom:22px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="/images/logo.jpg" alt="PKIET Logo" />
+      <h2>Admin Login</h2>
+      <p class="sub">Sign in to your account</p>
+      <form id="loginForm">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="Enter username" required />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Enter password" required />
+        </div>
+        <div class="remember-row">
+          <label><input type="checkbox" /> Remember Me</label>
+          <a href="#" style="color:var(--royal-blue)">Forgot Password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login</button>
+      </form>
+      <p style="font-size:.75rem;color:var(--text-muted);margin-top:20px">Secure Admin Access Only</p>
+    </div>
+  </div>
+
+<script src="/js/main.js"></script>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const original = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    try {
+      const formData = new FormData(e.target);
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: formData.get('username'), password: formData.get('password') })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      location.href = '/admin-dashboard.html';
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.innerHTML = original;
+    }
+  });
+</script>
+</body>
+</html>

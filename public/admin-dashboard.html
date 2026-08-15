@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard | PKIET</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .admin-layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px; background: var(--navy); color: #DCE3F7; padding: 26px 18px;
+    display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+  }
+  .sidebar .brand-mini { display:flex; align-items:center; gap:10px; margin-bottom: 30px; padding: 0 8px; }
+  .sidebar .brand-mini img { width: 34px; height: 34px; border-radius: 50%; }
+  .sidebar .brand-mini strong { color:#fff; font-size: 1rem; }
+  .side-link {
+    display:flex; align-items:center; gap:10px; padding: 12px 14px; border-radius: 10px;
+    font-size: .9rem; cursor:pointer; color:#B9C2E0; transition: background .2s, color .2s;
+  }
+  .side-link:hover, .side-link.active { background: rgba(255,255,255,0.08); color:#fff; }
+  .main { flex: 1; padding: 30px 34px; background: var(--bg); min-width: 0; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;}
+  .topbar h1 { font-size: 1.5rem; color: var(--navy); }
+  .search-box { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #E3E6EF; border-radius: 999px; padding: 8px 16px; min-width: 260px; }
+  .search-box input { border:none; outline:none; font-family:inherit; font-size:.88rem; flex:1; background:transparent; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:18px; margin-bottom: 30px; }
+  .stat-card { background:#fff; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .stat-card .label { font-size:.78rem; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 1.7rem; font-weight: 800; color: var(--navy); }
+  .stat-card.pending .value { color: var(--gold); }
+  .stat-card.approved .value { color: var(--emerald); }
+
+  .panel { background:#fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .panel-head { display:flex; justify-content:space-between; align-items:center; padding: 18px 22px; border-bottom:1px solid #EEF0F6; flex-wrap:wrap; gap:12px; }
+  .panel-head h3 { color: var(--navy); font-size: 1.05rem; }
+  .filters { display:flex; gap: 10px; flex-wrap: wrap; }
+  .filters select { padding: 8px 12px; border-radius: 8px; border:1px solid #E3E6EF; font-family:inherit; font-size:.85rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  th, td { text-align: left; padding: 13px 18px; white-space: nowrap; }
+  thead th { color: var(--text-muted); font-weight:600; font-size:.76rem; text-transform: uppercase; letter-spacing:.03em; border-bottom: 1px solid #EEF0F6; }
+  tbody tr { border-bottom: 1px solid #F3F4F8; }
+  tbody tr:hover { background: #FAFBFF; }
+  .badge { padding: 4px 12px; border-radius: 999px; font-size:.76rem; font-weight:600; }
+  .badge.Pending { background:#FEF3C7; color:#92400E; }
+  .badge.Approved { background:#D1FAE5; color:#065F46; }
+  .badge.Rejected { background:#FEE2E2; color:#991B1B; }
+  .row-actions { display:flex; gap:8px; }
+  .icon-btn { width: 30px; height:30px; border-radius:8px; border:1px solid #E3E6EF; background:#fff; cursor:pointer; font-size:.85rem; display:flex;align-items:center;justify-content:center; }
+  .icon-btn:hover { background: var(--bg-alt); }
+  .icon-btn.danger:hover { background:#FEE2E2; border-color:#FCA5A5; }
+  .table-wrap { overflow-x: auto; }
+  .table-empty { padding: 40px; text-align:center; color: var(--text-muted); }
+
+  .modal-overlay { position:fixed; inset:0; background:rgba(22,38,92,0.5); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  .modal-overlay.show { display:flex; }
+  .modal-card { background:#fff; border-radius: 20px; padding: 30px; max-width: 480px; width:100%; box-shadow: var(--shadow-lift); max-height: 90vh; overflow-y:auto; }
+  .modal-card h3 { color: var(--navy); margin-bottom: 20px; }
+  .modal-actions { display:flex; gap: 10px; margin-top: 10px; }
+
+  @media (max-width: 900px) {
+    .admin-layout { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; align-items:center; }
+    .sidebar .brand-mini { margin-bottom:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="brand-mini">
+      <img src="/images/logo.jpg" alt="Logo" />
+      <strong>PKIET Admin</strong>
+    </div>
+    <div class="side-link active" data-view="dashboard">&#128200; Dashboard</div>
+    <div class="side-link" data-view="registrations" data-cat="All">&#128203; All Registrations</div>
+    <div class="side-link" data-view="registrations" data-cat="Workshop">&#127891; Workshop</div>
+    <div class="side-link" data-view="registrations" data-cat="Technical">&#128187; Technical Events</div>
+    <div class="side-link" data-view="registrations" data-cat="Cultural">&#127917; Cultural Events</div>
+    <div class="side-link" id="exportBtn">&#11015; Export Excel</div>
+    <div class="side-link" id="logoutBtn" style="margin-top:auto">&#8618; Logout</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="viewTitle">Dashboard Overview</h1>
+      <div class="search-box" id="searchBoxWrap" style="display:none">
+        &#128269;
+        <input type="text" id="searchInput" placeholder="Search registrations..." />
+      </div>
+    </div>
+
+    <div id="dashboardView">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Total Registrations</div><div class="value" id="statTotal">0</div></div>
+        <div class="stat-card"><div class="label">Workshop</div><div class="value" id="statWorkshop">0</div></div>
+        <div class="stat-card"><div class="label">Technical Events</div><div class="value" id="statTechnical">0</div></div>
+        <div class="stat-card"><div class="label">Cultural Events</div><div class="value" id="statCultural">0</div></div>
+        <div class="stat-card pending"><div class="label">Pending</div><div class="value" id="statPending">0</div></div>
+        <div class="stat-card approved"><div class="label">Approved</div><div class="value" id="statApproved">0</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Recent Registrations</h3></div>
+        <div class="table-wrap"><table id="recentTable"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="registrationsView" style="display:none">
+      <div class="panel">
+        <div class="panel-head">
+          <h3 id="regPanelTitle">All Registrations</h3>
+          <div class="filters">
+            <select id="statusFilter">
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="regTable"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="editOverlay">
+  <div class="modal-card">
+    <h3>Edit Registration</h3>
+    <form id="editForm">
+      <input type="hidden" id="editRegId" />
+      <div class="field"><label>Registration ID</label><input type="text" id="editRegIdDisplay" disabled /></div>
+      <div class="field"><label>College Name</label><input type="text" id="editCollege" /></div>
+      <div class="field"><label>Event Name</label><input type="text" id="editEventName" /></div>
+      <div class="field-row">
+        <div class="field"><label>Contact Number</label><input type="text" id="editMobile" /></div>
+        <div class="field"><label>Email</label><input type="email" id="editEmail" /></div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="editStatus">
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary btn-block">Update</button>
+        <button type="button" class="btn btn-outline btn-block" id="cancelEdit">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

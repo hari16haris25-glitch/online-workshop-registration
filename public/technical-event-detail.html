@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Event Details | PKIET CSE Tech Fest 2K25</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .detail-wrap { max-width: 880px; margin: -60px auto 0; position: relative; z-index: 2; }
+  .detail-card { background: #fff; border-radius: 22px; box-shadow: var(--shadow-lift); overflow: hidden; }
+  .detail-top { background: linear-gradient(160deg, var(--royal-blue), var(--navy)); color: #fff; padding: 34px 34px 28px; }
+  .detail-top .sub-badge { display:inline-block; background: rgba(212,175,55,0.2); border:1px solid rgba(212,175,55,0.45); color: var(--gold-light); padding: 4px 14px; border-radius: 999px; font-size: .76rem; font-weight:700; letter-spacing:.04em; margin-bottom: 12px; }
+  .detail-top h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+  .detail-top p.tag { color: #DCE3F7; font-size: .95rem; }
+  .detail-meta-row { display:flex; flex-wrap:wrap; gap: 22px; margin-top: 20px; }
+  .detail-meta-row div { display:flex; align-items:center; gap:7px; font-size: .88rem; color:#DCE3F7; }
+  .detail-body { padding: 32px 34px 40px; }
+  .detail-body h2 { color: var(--navy); font-size: 1.1rem; margin-bottom: 16px; }
+  .rules-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 34px; }
+  .rules-list li { display:flex; gap: 12px; font-size: .92rem; color: var(--text); line-height: 1.55; }
+  .rules-list li .bullet { flex-shrink:0; width: 22px; height: 22px; border-radius: 50%; background: var(--bg-alt); color: var(--royal-blue); font-size: .74rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top: 2px; }
+  .detail-cta { text-align:center; border-top: 1px dashed #E3E6EF; padding-top: 28px; }
+  .detail-cta p { color: var(--text-muted); font-size: .85rem; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="/index.html" class="brand">
+      <img src="/images/logo.jpg" alt="PKIET Logo" />
+      <div class="brand-text">
+        <div class="college">PKIET</div>
+        <div class="dept">Department of Computer Science &amp; Engineering</div>
+      </div>
+    </a>
+    <button class="nav-toggle" aria-label="Menu">&#9776;</button>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/technical-events.html" class="active">Technical Events</a>
+      <a href="/cultural-events.html">Cultural Events</a>
+      <a href="/register-workshop.html">Workshop</a>
+      <a href="/admin-login.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-banner">
+  <h1 id="bannerTitle">Event Details</h1>
+  <p>Read the rules, then register below</p>
+</div>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="detail-wrap fade-in">
+      <div class="detail-card">
+        <div class="detail-top">
+          <span class="sub-badge" id="subBadge">Solo</span>
+          <h1 id="eventName">Event Name</h1>
+          <p class="tag" id="eventTagline"></p>
+          <div class="detail-meta-row">
+            <div>&#128197; <span id="metaDate"></span></div>
+            <div>&#128337; <span id="metaTime"></span></div>
+            <div>&#128205; <span id="metaVenue"></span></div>
+            <div>&#128176; <span id="metaFee"></span></div>
+          </div>
+        </div>
+        <div class="detail-body">
+          <h2>Rules &amp; Guidelines</h2>
+          <ul class="rules-list" id="rulesList"></ul>
+          <div class="detail-cta">
+            <p id="ctaNote">Team size and registration details are confirmed on the next step.</p>
+            <a href="#" id="registerBtn" class="btn btn-primary">Register Now &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer" id="footer"></footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/footer.js"></script>
+<script src="/js/technical-data.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('event');
+  const evt = TECH_EVENTS.find(e => e.slug === slug);
+
+  if (!evt) {
+    document.querySelector('.detail-body').innerHTML =
+      '<p style="text-align:center;color:var(--text-muted)">Event not found. <a href="/technical-events.html" style="color:var(--royal-blue);font-weight:600">Back to Technical Events</a></p>';
+    document.getElementById('eventName').textContent = 'Event Not Found';
+    document.querySelector('.detail-meta-row').style.display = 'none';
+    document.getElementById('subBadge').style.display = 'none';
+  } else {
+    document.title = evt.name + ' | PKIET CSE Tech Fest 2K25';
+    document.getElementById('bannerTitle').textContent = evt.name;
+    document.getElementById('subBadge').textContent = evt.sub + (evt.sub === 'Team' ? ` (Up to ${evt.max})` : evt.sub === 'Duo' ? '' : '');
+    document.getElementById('eventName').textContent = evt.name;
+    document.getElementById('eventTagline').textContent = evt.tagline;
+    document.getElementById('metaDate').textContent = evt.date;
+    document.getElementById('metaTime').innerHTML = evt.time;
+    document.getElementById('metaVenue').textContent = evt.venue;
+    document.getElementById('metaFee').innerHTML = evt.fee;
+
+    document.getElementById('rulesList').innerHTML = evt.rules.map((r, i) =>
+      `<li><span class="bullet">${i + 1}</span><span>${r}</span></li>`
+    ).join('');
+
+    const noteBySub = {
+      Solo: 'This is an individual event &mdash; you\'ll register as a single participant.',
+      Duo: 'This event requires exactly 2 participants &mdash; register together.',
+      Team: `This event allows up to ${evt.max} participants &mdash; register as a team.`
+    };
+    document.getElementById('ctaNote').innerHTML = noteBySub[evt.sub];
+
+    const q = new URLSearchParams({ event: evt.name, sub: evt.sub, max: evt.max });
+    document.getElementById('registerBtn').href = '/register-technical.html?' + q.toString();
+  }
+</script>
+</body>
+</html>

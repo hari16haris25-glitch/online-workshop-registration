@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Technical Events | PKIET CSE Tech Fest 2K25</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .group-heading { display:flex; align-items:center; gap: 12px; margin: 44px 0 22px; }
+  .group-heading:first-of-type { margin-top: 0; }
+  .group-heading h3 { color: var(--navy); font-size: 1.15rem; font-weight: 700; }
+  .group-heading .count-pill { background: var(--bg-alt); color: var(--royal-blue); font-size: .76rem; font-weight: 700; padding: 3px 12px; border-radius: 999px; }
+  .group-heading .line { flex:1; height:1px; background: #E3E6EF; }
+  .event-card .sub-tag { position:absolute; top:14px; right:14px; background: rgba(255,255,255,0.9); color: var(--navy); font-size: .7rem; font-weight:700; padding: 3px 10px; border-radius: 999px; }
+  .event-card { position: relative; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="/index.html" class="brand">
+      <img src="/images/logo.jpg" alt="PKIET Logo" />
+      <div class="brand-text">
+        <div class="college">PKIET</div>
+        <div class="dept">Department of Computer Science &amp; Engineering</div>
+      </div>
+    </a>
+    <button class="nav-toggle" aria-label="Menu">&#9776;</button>
+    <nav class="nav-links">
+      <a href="/index.html">Home</a>
+      <a href="/technical-events.html" class="active">Technical Events</a>
+      <a href="/cultural-events.html">Cultural Events</a>
+      <a href="/register-workshop.html">Workshop</a>
+      <a href="/admin-login.html">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-banner">
+  <h1>Technical Events</h1>
+  <p>Compete &bull; Innovate &bull; Excel &mdash; 2 Solo &bull; 3 Duo &bull; 3 Team (4 Members) events</p>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <div class="group-heading">
+      <h3>&#128100; Solo Events</h3>
+      <span class="count-pill" id="soloCount"></span>
+      <div class="line"></div>
+    </div>
+    <div class="card-grid" id="soloGrid"></div>
+
+    <div class="group-heading">
+      <h3>&#128101; Duo Events</h3>
+      <span class="count-pill" id="duoCount"></span>
+      <div class="line"></div>
+    </div>
+    <div class="card-grid" id="duoGrid"></div>
+
+    <div class="group-heading">
+      <h3>&#128101;&#8205;&#128101; Team Events <span style="font-weight:400;color:var(--text-muted);font-size:.85rem">(up to 4 members)</span></h3>
+      <span class="count-pill" id="teamCount"></span>
+      <div class="line"></div>
+    </div>
+    <div class="card-grid" id="teamGrid"></div>
+
+    <div class="quote-strip fade-in">&ldquo;Innovation distinguishes between a leader and a follower.&rdquo; &mdash; Steve Jobs</div>
+  </div>
+</section>
+
+<footer class="site-footer" id="footer"></footer>
+<script src="/js/main.js"></script>
+<script src="/js/footer.js"></script>
+<script src="/js/technical-data.js"></script>
+<script>
+  function cardHTML(evt) {
+    return `
+      <div class="event-card fade-in">
+        <span class="sub-tag">${evt.sub}</span>
+        <div class="thumb">${evt.icon}</div>
+        <div class="body">
+          <h3>${evt.name}</h3>
+          <p>${evt.tagline}</p>
+          <div class="meta">
+            <span>&#128176; ${evt.fee}</span>
+          </div>
+          <a href="/technical-event-detail.html?event=${evt.slug}" class="btn btn-primary btn-block">View Details &amp; Rules</a>
+        </div>
+      </div>
+    `;
+  }
+
+  const solo = TECH_EVENTS.filter(e => e.sub === 'Solo');
+  const duo = TECH_EVENTS.filter(e => e.sub === 'Duo');
+  const team = TECH_EVENTS.filter(e => e.sub === 'Team');
+
+  document.getElementById('soloGrid').innerHTML = solo.map(cardHTML).join('');
+  document.getElementById('duoGrid').innerHTML = duo.map(cardHTML).join('');
+  document.getElementById('teamGrid').innerHTML = team.map(cardHTML).join('');
+
+  document.getElementById('soloCount').textContent = solo.length + ' Games';
+  document.getElementById('duoCount').textContent = duo.length + ' Games';
+  document.getElementById('teamCount').textContent = team.length + ' Games';
+</script>
+</body>
+</html>
